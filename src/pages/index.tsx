@@ -68,7 +68,7 @@ export default function Home() {
         <Navbar />
         <main className="flex h-[calc(100vh-84px)] w-full flex-col md:flex-row">
           <Allotment
-            className="!relative flex h-[calc(100vh-84px)]"
+            className="relative! flex h-[calc(100vh-84px)]"
             proportionalLayout={false}
           >
             <Allotment.Pane

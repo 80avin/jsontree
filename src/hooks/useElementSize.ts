@@ -6,7 +6,7 @@ export type Size = {
 };
 
 export function useElementSize<T extends HTMLElement = HTMLDivElement>(): [
-  RefObject<T>,
+  RefObject<T | null>,
   Size,
 ] {
   const [size, setSize] = useState<Size>({ width: 0, height: 0 });

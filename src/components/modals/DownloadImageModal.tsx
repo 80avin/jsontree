@@ -1,4 +1,10 @@
-import { Dialog, Switch, Transition } from "@headlessui/react";
+import {
+  Dialog,
+  DialogPanel,
+  Switch,
+  Transition,
+  TransitionChild,
+} from "@headlessui/react";
 import { Dispatch, Fragment, SetStateAction, useState } from "react";
 import { toPng, toSvg } from "html-to-image";
 import { classNames } from "@/utility/classNames";
@@ -44,8 +50,8 @@ export function DownloadImageModal(props: DownloadDesignModal) {
         backgroundColor: isTransparent
           ? "transparent"
           : lightmode
-          ? "#FFFFFF"
-          : "#1E1E1E",
+            ? "#FFFFFF"
+            : "#1E1E1E",
       });
 
       downloadURI(dataURI, `${imageName}.${isPNG ? "png" : "svg"}`);
@@ -60,7 +66,7 @@ export function DownloadImageModal(props: DownloadDesignModal) {
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog as="div" className="relative z-10" onClose={handleClose}>
-        <Transition.Child
+        <TransitionChild
           as={Fragment}
           enter="ease-out duration-300"
           enterFrom="opacity-0"
@@ -69,12 +75,12 @@ export function DownloadImageModal(props: DownloadDesignModal) {
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-30 dark:bg-black dark:bg-opacity-60" />
-        </Transition.Child>
+          <div className="fixed inset-0 bg-black/30 dark:bg-black/60"></div>
+        </TransitionChild>
 
         <div className="fixed inset-0 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4">
-            <Transition.Child
+            <TransitionChild
               as={Fragment}
               enter="ease-out duration-300"
               enterFrom="opacity-0 scale-95"
@@ -83,7 +89,7 @@ export function DownloadImageModal(props: DownloadDesignModal) {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="w-full max-w-md rounded-lg bg-white p-4 ring-1 ring-gray-500/20 dark:bg-zinc-800 dark:text-gray-300 dark:ring-gray-100/20">
+              <DialogPanel className="w-full max-w-md rounded-lg bg-white p-4 ring-1 ring-gray-500/20 dark:bg-zinc-800 dark:text-gray-300 dark:ring-gray-100/20">
                 <div className="flex items-center justify-between">
                   <span className="font-semibold dark:text-gray-200">
                     Download Image
@@ -110,7 +116,7 @@ export function DownloadImageModal(props: DownloadDesignModal) {
                         placeholder="jsontree"
                         value={imageName}
                         onChange={(e) => setImageName(e.target.value)}
-                        className="block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-1 focus:ring-inset focus:ring-yellow-400 dark:bg-vsdark-500 dark:text-gray-200 dark:ring-0 dark:focus:ring-1 sm:text-sm sm:leading-6"
+                        className="dark:bg-vsdark-500 block w-full rounded-md border-0 px-3.5 py-2 text-gray-900 shadow-xs ring-1 ring-gray-300 ring-inset placeholder:text-gray-400 focus:ring-1 focus:ring-yellow-400 focus:ring-inset sm:text-sm sm:leading-6 dark:text-gray-200 dark:ring-0 dark:focus:ring-1"
                       />
                     </div>
                   </div>
@@ -119,7 +125,7 @@ export function DownloadImageModal(props: DownloadDesignModal) {
                       checked={isPNG}
                       onChange={setIsPNG}
                       className={classNames(
-                        "relative flex h-10 items-center gap-4 rounded-lg bg-vsdark-500 px-1 py-2 text-xs font-semibold dark:bg-vsdark-500 dark:ring-1 dark:ring-gray-300/20",
+                        "bg-vsdark-500 dark:bg-vsdark-500 relative flex h-10 items-center gap-4 rounded-lg px-1 py-2 text-xs font-semibold dark:ring-1 dark:ring-gray-300/20",
                       )}
                     >
                       <span className="sr-only">Choose image format</span>
@@ -147,7 +153,7 @@ export function DownloadImageModal(props: DownloadDesignModal) {
                       onChange={setIsTransparent}
                       className={classNames(
                         isTransparent ? "bg-yellow-500" : "bg-vsdark-500",
-                        "relative inline-flex h-6 w-12 shrink-0 cursor-pointer  rounded-full border-2 border-transparent p-[2px] transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 dark:ring-1 dark:ring-gray-300/20",
+                        "relative inline-flex h-6 w-12 shrink-0 cursor-pointer rounded-full border-2 border-transparent p-[2px] transition-colors duration-200 ease-in-out focus:outline-hidden focus-visible:ring-2 focus-visible:ring-white/75 dark:ring-1 dark:ring-gray-300/20",
                       )}
                     >
                       <span className="sr-only">Set Image transparency</span>
@@ -170,8 +176,8 @@ export function DownloadImageModal(props: DownloadDesignModal) {
                     Download
                   </button>
                 </div>
-              </Dialog.Panel>
-            </Transition.Child>
+              </DialogPanel>
+            </TransitionChild>
           </div>
         </div>
       </Dialog>

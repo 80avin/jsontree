@@ -1,5 +1,5 @@
 import dynamic from "next/dynamic";
-import { useCallback, useState } from "react";
+import { type JSX, useCallback, useState } from "react";
 import { Edge, EdgeProps, ElkRoot, NodeProps } from "reaflow";
 import {
   ReactZoomPanPinchRef,
@@ -78,7 +78,7 @@ export default function TreeEditor() {
   return (
     <>
       {loading && (
-        <div className="pointer-events-none absolute inset-0 left-0 top-0 z-50 flex items-center justify-center bg-white dark:bg-vsdark-500 dark:text-white">
+        <div className="dark:bg-vsdark-500 pointer-events-none absolute inset-0 top-0 left-0 z-50 flex items-center justify-center bg-white dark:text-white">
           <div className="text-base">
             <span>Building graph...</span>
           </div>
@@ -87,9 +87,9 @@ export default function TreeEditor() {
       <div
         ref={editorContainerRef}
         onContextMenu={(e) => e.preventDefault()}
-        className="absolute h-[calc(100vh-84px)] w-full active:!cursor-move dark:bg-vsdark-500"
+        className="dark:bg-vsdark-500 absolute h-[calc(100vh-84px)] w-full active:cursor-move!"
       >
-        <div className="absolute right-1 top-1 z-20 rounded-md p-1 text-xs dark:text-gray-300">
+        <div className="absolute top-1 right-1 z-20 rounded-md p-1 text-xs dark:text-gray-300">
           <span>
             {editorSize.width} X {editorSize.height}
           </span>

@@ -31,7 +31,7 @@ export const CustomNode = (nodeProps: CustomNode) => {
       {...(data.isEmpty && rootProps)}
       label={<React.Fragment />}
       className={`${
-        nodeProps.isLightMode ? "!fill-[#f6f8fa]" : "!fill-[#2B2C3E]"
+        nodeProps.isLightMode ? "fill-[#f6f8fa]!" : "fill-[#2B2C3E]!"
       }`}
     >
       {({ node, x, y }) => {

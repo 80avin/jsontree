@@ -1,6 +1,15 @@
 import { Fragment, useState } from "react";
 import { useHotkeys } from "@/hooks/useHotKeys";
-import { Transition, Dialog, Combobox } from "@headlessui/react";
+import {
+  Transition,
+  TransitionChild,
+  Dialog,
+  DialogPanel,
+  Combobox,
+  ComboboxInput,
+  ComboboxOptions,
+  ComboboxOption,
+} from "@headlessui/react";
 import { LogoIcon, CancelIcon, CommandPaletteIcon } from "@/components/Icons";
 
 export default function CommandPalette() {
@@ -14,7 +23,7 @@ export default function CommandPalette() {
   return (
     <>
       <div className="ml-2 flex h-8 items-center gap-1 rounded-md border border-gray-300 text-gray-700">
-        <span className="select-none px-2 text-sm font-medium">
+        <span className="px-2 text-sm font-medium select-none">
           <kbd>ctrl+/</kbd>
         </span>
         <button
@@ -28,7 +37,7 @@ export default function CommandPalette() {
       </div>
       <Transition appear show={isOpenModal} as={Fragment}>
         <Dialog as="div" className="relative z-10" onClose={setIsOpenModal}>
-          <Transition.Child
+          <TransitionChild
             as={Fragment}
             enter="ease-out duration-300"
             enterFrom="opacity-0"
@@ -37,12 +46,12 @@ export default function CommandPalette() {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-5" />
-          </Transition.Child>
+            <div className="fixed inset-0 bg-black/5"></div>
+          </TransitionChild>
 
           <div className="fixed inset-0 top-12">
             <div className="flex justify-center p-4 text-center">
-              <Transition.Child
+              <TransitionChild
                 as={Fragment}
                 enter="ease-out duration-300"
                 enterFrom="opacity-0 scale-95"
@@ -51,7 +60,7 @@ export default function CommandPalette() {
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-lg bg-white pb-4 text-left align-middle shadow-xl ring-1 ring-gray-500/20 transition-all">
+                <DialogPanel className="w-full max-w-xl transform overflow-hidden rounded-lg bg-white pb-4 text-left align-middle shadow-xl ring-1 ring-gray-500/20 transition-all">
                   <Combobox>
                     <div className="flex items-center gap-2 px-4 py-2">
                       {/* <div className="w-5 text-gray-600">
@@ -65,7 +74,7 @@ export default function CommandPalette() {
                       </span>
                       <span>/</span>
                       <div className="w-full">
-                        <Combobox.Input
+                        <ComboboxInput
                           className="w-full max-w-full border-0 focus:ring-0"
                           placeholder="Search..."
                         />
@@ -86,45 +95,39 @@ export default function CommandPalette() {
                         for help and tips
                       </div>
                     </div>
-                    <Combobox.Options>
-                      <Combobox.Option value="one">
-                        {({ active }) => (
+                    <ComboboxOptions>
+                      <ComboboxOption value="one">
+                        {({ focus }) => (
                           <div
-                            className={`${
-                              active ? "bg-red-600" : ""
-                            } px-4 py-2`}
+                            className={`${focus ? "bg-red-600" : ""} px-4 py-2`}
                           >
                             one
                           </div>
                         )}
-                      </Combobox.Option>
-                      <Combobox.Option value="two">
-                        {({ active }) => (
+                      </ComboboxOption>
+                      <ComboboxOption value="two">
+                        {({ focus }) => (
                           <button
-                            className={`${
-                              active ? "bg-red-600" : ""
-                            } px-4 py-2`}
+                            className={`${focus ? "bg-red-600" : ""} px-4 py-2`}
                             onClick={toggleCommandPalette}
                           >
                             Toggle Editor
                           </button>
                         )}
-                      </Combobox.Option>
-                      <Combobox.Option value="three">
-                        {({ active }) => (
+                      </ComboboxOption>
+                      <ComboboxOption value="three">
+                        {({ focus }) => (
                           <div
-                            className={`${
-                              active ? "bg-red-600" : ""
-                            } px-4 py-2`}
+                            className={`${focus ? "bg-red-600" : ""} px-4 py-2`}
                           >
                             Three
                           </div>
                         )}
-                      </Combobox.Option>
-                    </Combobox.Options>
+                      </ComboboxOption>
+                    </ComboboxOptions>
                   </Combobox>
-                </Dialog.Panel>
-              </Transition.Child>
+                </DialogPanel>
+              </TransitionChild>
             </div>
           </div>
         </Dialog>

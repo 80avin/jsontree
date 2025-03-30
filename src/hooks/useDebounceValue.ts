@@ -7,7 +7,7 @@ export function useDebounceValue<T>(
 ) {
   const [_value, setValue] = useState(value);
   const refMounted = useRef<boolean>(false);
-  const refTimeout = useRef<number | undefined>();
+  const refTimeout = useRef<number | undefined>(undefined);
   const refCooldown = useRef<boolean>(false);
   const cancel = () => window.clearTimeout(refTimeout.current);
 

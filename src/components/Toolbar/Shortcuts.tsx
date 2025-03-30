@@ -1,5 +1,11 @@
 import { Fragment, useMemo, useState } from "react";
-import { Menu, Transition } from "@headlessui/react";
+import {
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuItems,
+  Transition,
+} from "@headlessui/react";
 import { getNextDirection } from "@/core/graph/getNextDirection";
 import { useHotkeys } from "@/hooks/useHotKeys";
 import { useTree } from "@/store/useTree";
@@ -55,8 +61,8 @@ export default function Shortcuts() {
   return (
     <>
       <Menu as="div" className="relative">
-        <Menu.Button
-          className="inline-flex h-8 w-8 items-center justify-center gap-1 rounded-md border border-gray-300 p-0 text-sm text-gray-700 hover:bg-gray-200 dark:border-gray-500 dark:bg-vsdark-500 dark:text-gray-300 dark:hover:border-yellow-400 dark:hover:text-yellow-400 md:w-auto md:px-2 md:py-1"
+        <MenuButton
+          className="dark:bg-vsdark-500 inline-flex h-8 w-8 items-center justify-center gap-1 rounded-md border border-gray-300 p-0 text-sm text-gray-700 hover:bg-gray-200 md:w-auto md:px-2 md:py-1 dark:border-gray-500 dark:text-gray-300 dark:hover:border-yellow-400 dark:hover:text-yellow-400"
           aria-label="Shortcut menu"
         >
           <span className="hidden md:inline">Shortcuts</span>
@@ -66,7 +72,7 @@ export default function Shortcuts() {
           <span className="h-5 w-5 md:hidden">
             <MenuIcon />
           </span>
-        </Menu.Button>
+        </MenuButton>
         <Transition
           as={Fragment}
           enter="transition ease-out duration-100"
@@ -76,12 +82,12 @@ export default function Shortcuts() {
           leaveFrom="transform opacity-100 scale-100"
           leaveTo="transform opacity-0 scale-95"
         >
-          <Menu.Items className="absolute right-0 z-50 mt-2 w-48 origin-top-right divide-y divide-gray-100 rounded-md bg-white p-1 shadow-xl ring-1 ring-black ring-opacity-5 focus:outline-none dark:divide-y-0 dark:bg-vsdark-500 dark:shadow-yellow-700/10 dark:ring-1 dark:ring-gray-600 md:w-56">
-            <Menu.Item>
-              {({ active }) => (
+          <MenuItems className="dark:bg-vsdark-500 absolute right-0 z-50 mt-2 w-48 origin-top-right divide-y divide-gray-100 rounded-md bg-white p-1 shadow-xl ring-1 ring-black/5 focus:outline-hidden md:w-56 dark:divide-y-0 dark:ring-1 dark:shadow-yellow-700/10 dark:ring-gray-600">
+            <MenuItem>
+              {({ focus }) => (
                 <button
                   className={`${
-                    active
+                    focus
                       ? "bg-gray-900 text-white dark:text-yellow-400"
                       : "text-gray-900 dark:text-white"
                   } group flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm md:justify-between`}
@@ -93,7 +99,7 @@ export default function Shortcuts() {
                   Toggle Editor
                   <kbd
                     className={`ml-2 hidden rounded-md border border-gray-200 p-1 text-xs md:inline ${
-                      active
+                      focus
                         ? "border-gray-100 bg-yellow-300 text-gray-900"
                         : "bg-gray-200 dark:text-gray-900"
                     }`}
@@ -102,12 +108,12 @@ export default function Shortcuts() {
                   </kbd>
                 </button>
               )}
-            </Menu.Item>
-            <Menu.Item>
-              {({ active }) => (
+            </MenuItem>
+            <MenuItem>
+              {({ focus }) => (
                 <button
                   className={`${
-                    active
+                    focus
                       ? "bg-gray-900 text-white dark:text-yellow-400"
                       : "text-gray-900 dark:text-white"
                   } group flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm md:justify-between`}
@@ -119,7 +125,7 @@ export default function Shortcuts() {
                   Rotate grid
                   <kbd
                     className={`ml-2 hidden rounded-md border border-gray-200 p-1 text-xs md:inline ${
-                      active
+                      focus
                         ? "border-gray-100 bg-yellow-300 text-gray-900"
                         : "bg-gray-200 dark:text-gray-900"
                     }`}
@@ -128,12 +134,12 @@ export default function Shortcuts() {
                   </kbd>
                 </button>
               )}
-            </Menu.Item>
-            <Menu.Item>
-              {({ active }) => (
+            </MenuItem>
+            <MenuItem>
+              {({ focus }) => (
                 <button
                   className={`${
-                    active
+                    focus
                       ? "bg-gray-900 text-white dark:text-yellow-400"
                       : "text-gray-900 dark:text-white"
                   } group flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm md:justify-between`}
@@ -145,7 +151,7 @@ export default function Shortcuts() {
                   Center View
                   <kbd
                     className={`ml-2 hidden rounded-md border border-gray-200 p-1 text-xs md:inline ${
-                      active
+                      focus
                         ? "border-gray-100 bg-yellow-300 text-gray-900"
                         : "bg-gray-200 dark:text-gray-900"
                     }`}
@@ -154,12 +160,12 @@ export default function Shortcuts() {
                   </kbd>
                 </button>
               )}
-            </Menu.Item>
-            <Menu.Item>
-              {({ active }) => (
+            </MenuItem>
+            <MenuItem>
+              {({ focus }) => (
                 <button
                   className={`${
-                    active
+                    focus
                       ? "bg-gray-900 text-white dark:text-yellow-400"
                       : "text-gray-900 dark:text-white"
                   } group hidden w-full items-center justify-between rounded-md px-2 py-2 text-sm md:flex`}
@@ -168,7 +174,7 @@ export default function Shortcuts() {
                   Zoom In
                   <kbd
                     className={`ml-2 hidden rounded-md border border-gray-200 p-1 text-xs md:inline ${
-                      active
+                      focus
                         ? "border-gray-100 bg-yellow-300 text-gray-900"
                         : "bg-gray-200 dark:text-gray-900"
                     }`}
@@ -177,12 +183,12 @@ export default function Shortcuts() {
                   </kbd>
                 </button>
               )}
-            </Menu.Item>
-            <Menu.Item>
-              {({ active }) => (
+            </MenuItem>
+            <MenuItem>
+              {({ focus }) => (
                 <button
                   className={`${
-                    active
+                    focus
                       ? "bg-gray-900 text-white dark:text-yellow-400"
                       : "text-gray-900 dark:text-white"
                   } group hidden w-full items-center justify-between rounded-md px-2 py-2 text-sm md:flex`}
@@ -191,7 +197,7 @@ export default function Shortcuts() {
                   Zoom Out
                   <kbd
                     className={`ml-2 hidden rounded-md border border-gray-200 p-1 text-xs md:inline ${
-                      active
+                      focus
                         ? "border-gray-100 bg-yellow-300 text-gray-900"
                         : "bg-gray-200 dark:text-gray-900"
                     }`}
@@ -200,12 +206,12 @@ export default function Shortcuts() {
                   </kbd>
                 </button>
               )}
-            </Menu.Item>
-            <Menu.Item>
-              {({ active }) => (
+            </MenuItem>
+            <MenuItem>
+              {({ focus }) => (
                 <button
                   className={`${
-                    active
+                    focus
                       ? "bg-gray-900 text-white dark:text-yellow-400"
                       : "text-gray-900 dark:text-white"
                   } flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm md:hidden`}
@@ -223,12 +229,12 @@ export default function Shortcuts() {
                   {theme ? "Dark mode" : "Light mode"}
                 </button>
               )}
-            </Menu.Item>
-            <Menu.Item>
-              {({ active }) => (
+            </MenuItem>
+            <MenuItem>
+              {({ focus }) => (
                 <button
                   className={`${
-                    active
+                    focus
                       ? "bg-gray-900 text-white dark:text-yellow-400"
                       : "text-gray-900 dark:text-white"
                   } flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm md:hidden`}
@@ -240,8 +246,8 @@ export default function Shortcuts() {
                   Download diagram
                 </button>
               )}
-            </Menu.Item>
-          </Menu.Items>
+            </MenuItem>
+          </MenuItems>
         </Transition>
       </Menu>
       <DownloadImageModal
