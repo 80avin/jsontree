@@ -58,17 +58,15 @@ function compressGraph(graph: Graph) {
 
 function buildGraph(tree: Node): Graph {
   const graph: Graph = { nodes: [], edges: [] };
-  const stack: Array<[number, string | null, Node]> = [[-1, "{Root}", tree]];
-  while (stack.length) {
-    const [parentId, key, node] = stack.shift()!;
-    const curId = graph.nodes.length;
+  const stack: [number, string, Node][] = [[-1, "{Root}", tree]];
+  const visitNode = (node: Node, parentId: number, key: string): number => {
+    const id = graph.nodes.length;
     if (node.type === "object") {
       const text: [string, any][] = node.children!.map((child) => [
         child.children![0].value,
         ["object", "array"].includes(child.children![1].type)
           ? getNodeValue(child.children![1])
-          : // ? { [child.children![1].type]: child.children![1].children!.length }
-            child.children![1].value,
+          : child.children![1].value,
       ]);
       graph.nodes.push({
         id: `${graph.nodes.length}`,
@@ -82,48 +80,42 @@ function buildGraph(tree: Node): Graph {
         path: (parentId === -1 ? "" : `${graph.nodes[parentId].path}.`) + key,
         ...calculateNodeSize(text, parentId !== -1),
       });
-      node
-        .children!.filter((child) =>
-          ["array", "object"].includes(child.children![1].type),
-        )
-        .forEach((child) => {
-          const propId = graph.nodes.length;
-          graph.nodes.push({
-            id: `${graph.nodes.length}`,
-            text: child.children![0].value,
-            data: {
-              childrenCount:
-                child.type === "object"
-                  ? 1
-                  : child.children![1].children!.length,
-              isParent: true,
-              isEmpty: false,
-              type: child.children![1].type,
-            },
-            path: `${graph.nodes[curId].path}.${child.children![0].value}`,
-            ...calculateNodeSize(child.children![0].value, true),
-          });
-          graph.edges.push({
-            id: `e${curId}-${propId}`,
-            from: `${curId}`,
-            to: `${propId}`,
-          });
-          stack.push([propId, child.children![0].value, child.children![1]]);
-        });
+
       if (parentId !== -1) {
         graph.edges.push({
-          id: `e${parentId}-${curId}`,
+          id: `e${parentId}-${id}`,
           from: `${parentId}`,
-          to: `${curId}`,
+          to: `${id}`,
         });
       }
     } else if (node.type === "array") {
-      node.children!.forEach((child, i) =>
-        stack.push([parentId, key ? `${key}.${i}` : `${i}`, child]),
-      );
-    } else {
+      // add array as prop ?
+      // do nothing ?
+    } else if (node.type === "property") {
+      const propId = graph.nodes.length;
       graph.nodes.push({
         id: `${graph.nodes.length}`,
+        text: node.children![0].value,
+        data: {
+          childrenCount:
+            node.children![1].type === "object"
+              ? 1
+              : node.children![1].children!.length,
+          isParent: true,
+          isEmpty: false,
+          type: node.children![1].type,
+        },
+        path: `${graph.nodes[parentId].path}.${node.children![0].value}`,
+        ...calculateNodeSize(node.children![0].value, true),
+      });
+      graph.edges.push({
+        id: `e${parentId}-${propId}`,
+        from: `${parentId}`,
+        to: `${propId}`,
+      });
+    } else {
+      graph.nodes.push({
+        id: `${id}`,
         text: node.value,
         data: {
           childrenCount: 0,
@@ -138,20 +130,49 @@ function buildGraph(tree: Node): Graph {
       });
       if (parentId !== -1) {
         graph.edges.push({
-          id: `e${parentId}-${curId}`,
+          id: `e${parentId}-${id}`,
           from: `${parentId}`,
-          to: `${curId}`,
+          to: `${id}`,
         });
       }
+    }
+    return id;
+  };
+  while (stack.length) {
+    const [parentId, key, node] = stack.shift()!;
+    const myId = visitNode(node, parentId, key);
+    if (node.type === "object") {
+      stack.unshift(
+        ...node
+          .children!.filter((propChild) =>
+            ["array", "object"].includes(propChild.children![1].type),
+          )
+          .map(
+            (propChild) =>
+              [myId, propChild.children![0].value as string, propChild] as [
+                number,
+                string,
+                Node,
+              ],
+          ),
+      );
+    } else if (node.type === "array") {
+      stack.unshift(
+        ...node.children!.map(
+          (child, i) =>
+            [parentId, key ? `${key}.${i}` : `${i}`, child] as [
+              number,
+              string,
+              Node,
+            ],
+        ),
+      );
+    } else if (node.type === "property") {
+      stack.unshift([myId, node.children![0].value, node.children![1]]);
     }
   }
 
   compressGraph(graph);
-  // We have built the graph in breadth-first order, but we want to sort it in depth-first order
-  // otherwise, the edges intersect - probably bug in reaflow
-  graph.nodes.sort((a, b) =>
-    a.path && b.path ? b.path.split(".").length - a.path.split(".").length : -1,
-  );
   return graph;
 }
 
