@@ -18,28 +18,34 @@ function compressGraph(graph: Graph) {
     if (!Array.isArray(node.text)) {
       continue;
     }
-    const text_no_object = node.text.filter(([_, v]) => !(v instanceof Object));
+    const text_all_compressed = node.text.map(([key, val]): [string, any] => {
+      if (!(val instanceof Object)) return [key, val];
+      return [
+        key,
+        {
+          [Array.isArray(val) ? "array" : "object"]: Array.isArray(val)
+            ? val.length
+            : Object.keys(val).length,
+        },
+      ];
+    });
     const hasParent = node.path?.startsWith("{Root}.") ?? false;
-    const width_no_object = calculateNodeSize(text_no_object, hasParent).width;
+    const width_no_object = calculateNodeSize(
+      text_all_compressed,
+      hasParent,
+    ).width;
     const newWidth = Math.max(200, width_no_object);
-    node.text = node.text.map(([key, val]) => {
-      if (!(val instanceof Object)) {
-        return [key, val];
+    node.text = node.text.map((text, i) => {
+      if (!(text[1] instanceof Object)) {
+        return text;
       }
-      const obj_width = calculateNodeSize([[key, val]], hasParent).width;
+      const obj_width = calculateNodeSize([text], hasParent).width;
       if (obj_width > newWidth) {
-        return [
-          key,
-          {
-            [Array.isArray(val) ? "array" : "object"]: Array.isArray(val)
-              ? val.length
-              : Object.keys(val).length,
-          },
-        ];
+        return text_all_compressed[i];
       }
-      pathsToRemove.push(`${node.path}.${key}`);
+      pathsToRemove.push(`${node.path}.${text[0]}`);
 
-      return [key, val];
+      return text;
     });
     node.width = newWidth;
   }

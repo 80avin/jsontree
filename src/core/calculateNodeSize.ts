@@ -28,7 +28,7 @@ export const calculateNodeSize = (
   const { foldNodes } = useTree.getState();
   const { imagePreview } = useStored.getState();
   const isImage = isContentImage(text) && imagePreview;
-  const cacheKey = [text, isParent, foldNodes].toString();
+  const cacheKey = JSON.stringify([text, isParent, foldNodes]);
 
   // check cache
   if (sizeCache.has(cacheKey)) {
