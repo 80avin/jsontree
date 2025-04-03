@@ -1,11 +1,60 @@
-import { Node, parseTree } from "jsonc-parser";
+import { Node, parseTree, getNodeValue as _getNodeValue } from "jsonc-parser";
 import { EdgeData, NodeData } from "@/core/type";
 import { calculateNodeSize } from "../calculateNodeSize";
+
+/**
+ * computes node value, ensuring the objects have a prototype
+ */
+const getNodeValue = (v: any) => JSON.parse(JSON.stringify(_getNodeValue(v)));
 
 export type Graph = {
   nodes: NodeData[];
   edges: EdgeData[];
 };
+
+function compressGraph(graph: Graph) {
+  const pathsToRemove: string[] = [];
+  for (const node of graph.nodes) {
+    if (!Array.isArray(node.text)) {
+      continue;
+    }
+    const text_no_object = node.text.filter(([_, v]) => !(v instanceof Object));
+    const hasParent = node.path?.startsWith("{Root}.") ?? false;
+    const width_no_object = calculateNodeSize(text_no_object, hasParent).width;
+    const newWidth = Math.max(200, width_no_object);
+    node.text = node.text.map(([key, val]) => {
+      if (!(val instanceof Object)) {
+        return [key, val];
+      }
+      const obj_width = calculateNodeSize([[key, val]], hasParent).width;
+      if (obj_width > newWidth) {
+        return [
+          key,
+          {
+            [Array.isArray(val) ? "array" : "object"]: Array.isArray(val)
+              ? val.length
+              : Object.keys(val).length,
+          },
+        ];
+      }
+      pathsToRemove.push(`${node.path}.${key}`);
+
+      return [key, val];
+    });
+    node.width = newWidth;
+  }
+  graph.nodes = graph.nodes.filter((node) => {
+    const shouldRemove = pathsToRemove.some((pathPrefix) =>
+      node.path!.startsWith(pathPrefix),
+    );
+    if (shouldRemove) {
+      graph.edges = graph.edges.filter((e) => {
+        return e.to !== node.id && e.from !== node.id;
+      });
+    }
+    return !shouldRemove;
+  });
+}
 
 function buildGraph(tree: Node): Graph {
   const graph: Graph = { nodes: [], edges: [] };
@@ -17,8 +66,9 @@ function buildGraph(tree: Node): Graph {
       const text: [string, any][] = node.children!.map((child) => [
         child.children![0].value,
         ["object", "array"].includes(child.children![1].type)
-          ? { [child.children![1].type]: child.children![1].children!.length }
-          : child.children![1].value,
+          ? getNodeValue(child.children![1])
+          : // ? { [child.children![1].type]: child.children![1].children!.length }
+            child.children![1].value,
       ]);
       graph.nodes.push({
         id: `${graph.nodes.length}`,
@@ -95,6 +145,13 @@ function buildGraph(tree: Node): Graph {
       }
     }
   }
+
+  compressGraph(graph);
+  // We have built the graph in breadth-first order, but we want to sort it in depth-first order
+  // otherwise, the edges intersect - probably bug in reaflow
+  graph.nodes.sort((a, b) =>
+    a.path && b.path ? b.path.split(".").length - a.path.split(".").length : -1,
+  );
   return graph;
 }
 
