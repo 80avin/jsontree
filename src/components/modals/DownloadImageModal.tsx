@@ -5,8 +5,14 @@ import {
   Transition,
   TransitionChild,
 } from "@headlessui/react";
-import { Dispatch, Fragment, SetStateAction, useState } from "react";
-import { toPng, toSvg } from "html-to-image";
+import {
+  type Dispatch,
+  Fragment,
+  type SetStateAction,
+  type SyntheticEvent,
+  useState,
+} from "react";
+import { toPng, toSvg, toBlob } from "html-to-image";
 import { classNames } from "@/utility/classNames";
 import { useStored } from "@/store/useStored";
 import { CancelIcon } from "@/components/Icons";
@@ -25,6 +31,14 @@ export type DownloadDesignModal = {
   setOpen: Dispatch<SetStateAction<boolean>>;
 };
 
+const EXPORT_IMAGE_FN = {
+  png: toPng,
+  svg: toSvg,
+  blob: toBlob,
+} as const;
+
+const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+
 export function DownloadImageModal(props: DownloadDesignModal) {
   const { isOpen, setOpen } = props;
   const lightmode = useStored((state) => state.lightmode);
@@ -37,24 +51,44 @@ export function DownloadImageModal(props: DownloadDesignModal) {
     setOpen(false);
   };
 
+  const copyToClipboard = async (
+    e: SyntheticEvent<HTMLButtonElement, MouseEvent>,
+  ) => {
+    let orig: string = "Copy";
+    const elem = e.currentTarget;
+    const blob = await getImageURI("blob", isTransparent, lightmode);
+    if (!blob) {
+      elem.innerText = "Copy Failed";
+      elem.dataset.failed = "";
+      await delay(0);
+      setTimeout(() => {
+        delete elem.dataset.failed;
+        elem.innerText = orig;
+      }, 5000);
+      return;
+    }
+    await navigator.clipboard.write([
+      new ClipboardItem({
+        [blob.type]: blob,
+      }),
+    ]);
+    if (elem) {
+      elem.innerText = "Copied";
+      elem.dataset.copied = "";
+      await delay(0);
+      setTimeout(() => {
+        delete elem.dataset.copied;
+        elem.innerText = orig;
+      }, 2000);
+    }
+  };
+
   const exportAsImage = async () => {
     try {
-      const imageElement = document.querySelector(
-        "svg[id*='ref']",
-      ) as HTMLElement;
+      const ext = isPNG ? "png" : "svg";
+      const dataURI = await getImageURI(ext, isTransparent, lightmode);
 
-      let exportImage = isPNG ? toPng : toSvg;
-
-      const dataURI = await exportImage(imageElement, {
-        quality: 1,
-        backgroundColor: isTransparent
-          ? "transparent"
-          : lightmode
-            ? "#FFFFFF"
-            : "#1E1E1E",
-      });
-
-      downloadURI(dataURI, `${imageName}.${isPNG ? "png" : "svg"}`);
+      downloadURI(dataURI, `${imageName}.${ext}`);
     } catch (error) {
       // TODO: Show error toast
     } finally {
@@ -167,7 +201,14 @@ export function DownloadImageModal(props: DownloadDesignModal) {
                     </Switch>
                   </div>
                 </div>
-                <div className="flex justify-end">
+                <div className="flex justify-between">
+                  <button
+                    aria-label="download image"
+                    onClick={copyToClipboard}
+                    className="data-copied:green-100 mt-8 rounded-lg bg-yellow-400 px-4 py-2 font-semibold text-zinc-900 hover:bg-yellow-400 data-copied:bg-green-500 data-copied:text-white data-failed:bg-red-600 data-failed:text-white"
+                  >
+                    Copy
+                  </button>
                   <button
                     aria-label="download image"
                     onClick={exportAsImage}
@@ -183,4 +224,24 @@ export function DownloadImageModal(props: DownloadDesignModal) {
       </Dialog>
     </Transition>
   );
+}
+
+async function getImageURI<T extends keyof typeof EXPORT_IMAGE_FN>(
+  outputType: T,
+  isTransparent: boolean,
+  lightmode: boolean,
+) {
+  const imageElement = document.querySelector("svg[id*='ref']") as HTMLElement;
+
+  let exportImage = EXPORT_IMAGE_FN[outputType];
+
+  const dataURI = (await exportImage(imageElement, {
+    quality: 1,
+    backgroundColor: isTransparent
+      ? "transparent"
+      : lightmode
+        ? "#FFFFFF"
+        : "#1E1E1E",
+  })) as ReturnType<typeof exportImage>;
+  return dataURI;
 }
