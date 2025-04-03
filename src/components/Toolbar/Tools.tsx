@@ -3,6 +3,7 @@ import {
   DownloadIcon,
   FocusIcon,
   MoonIcon,
+  ShareIcon,
   SunIcon,
   ZoomInIcon,
   ZoomOutIcon,
@@ -16,6 +17,7 @@ export default function Tools() {
   const [isDownloadModalOpen, setIsDownloadModal] = useState<boolean>(false);
   const centerView = useTree((state) => state.centerView);
   const zoomIn = useTree((state) => state.zoomIn);
+  const share = useTree((state) => state.share);
   const zoomOut = useTree((state) => state.zoomOut);
   const lightmode = useStored((state) => state.lightmode);
   const setLightTheme = useStored((state) => state.setLightTheme);
@@ -29,7 +31,7 @@ export default function Tools() {
   return (
     <div className="hidden items-center gap-2 md:flex">
       <button
-        className="h-8 w-8 rounded-md border border-gray-300 p-[5px] text-gray-700 hover:bg-gray-200 dark:border-gray-500 dark:bg-vsdark-500 dark:text-gray-300 dark:hover:border-yellow-400 dark:hover:text-yellow-400"
+        className="dark:bg-vsdark-500 h-8 w-8 rounded-md border border-gray-300 p-[5px] text-gray-700 hover:bg-gray-200 dark:border-gray-500 dark:text-gray-300 dark:hover:border-yellow-400 dark:hover:text-yellow-400"
         type="button"
         aria-label="Zoom In"
         onClick={() => setIsDownloadModal(true)}
@@ -41,7 +43,15 @@ export default function Tools() {
         setOpen={setIsDownloadModal}
       />
       <button
-        className="hidden h-8 w-8 rounded-md border border-gray-300 p-[5px] text-gray-700 hover:bg-gray-200 dark:border-gray-500 dark:bg-vsdark-500 dark:text-gray-300 dark:hover:border-yellow-400 dark:hover:text-yellow-400 md:inline-block"
+        className="dark:bg-vsdark-500 hidden h-8 w-8 rounded-md border border-gray-300 p-[5px] text-gray-700 hover:bg-gray-200 md:inline-block dark:border-gray-500 dark:text-gray-300 dark:hover:border-yellow-400 dark:hover:text-yellow-400"
+        type="button"
+        aria-label="Share"
+        onClick={share}
+      >
+        <ShareIcon />
+      </button>
+      <button
+        className="dark:bg-vsdark-500 hidden h-8 w-8 rounded-md border border-gray-300 p-[5px] text-gray-700 hover:bg-gray-200 md:inline-block dark:border-gray-500 dark:text-gray-300 dark:hover:border-yellow-400 dark:hover:text-yellow-400"
         type="button"
         aria-label="Zoom In"
         onClick={zoomIn}
@@ -49,7 +59,7 @@ export default function Tools() {
         <ZoomInIcon />
       </button>
       <button
-        className="hidden h-8 w-8 rounded-md border border-gray-300 p-[5px] text-gray-700 hover:bg-gray-200 dark:border-gray-500 dark:bg-vsdark-500 dark:text-gray-300 dark:hover:border-yellow-400 dark:hover:text-yellow-400 md:inline-block"
+        className="dark:bg-vsdark-500 hidden h-8 w-8 rounded-md border border-gray-300 p-[5px] text-gray-700 hover:bg-gray-200 md:inline-block dark:border-gray-500 dark:text-gray-300 dark:hover:border-yellow-400 dark:hover:text-yellow-400"
         type="button"
         aria-label="Zoom Out"
         onClick={zoomOut}
@@ -57,7 +67,7 @@ export default function Tools() {
         <ZoomOutIcon />
       </button>
       <button
-        className="h-8 w-8 rounded-md border border-gray-300 p-[5px] text-gray-700 hover:bg-gray-200 dark:border-gray-500 dark:bg-vsdark-500 dark:text-gray-300 dark:hover:border-yellow-400 dark:hover:text-yellow-400"
+        className="dark:bg-vsdark-500 h-8 w-8 rounded-md border border-gray-300 p-[5px] text-gray-700 hover:bg-gray-200 dark:border-gray-500 dark:text-gray-300 dark:hover:border-yellow-400 dark:hover:text-yellow-400"
         type="button"
         aria-label="focus to center"
         onClick={centerView}
@@ -65,7 +75,7 @@ export default function Tools() {
         <FocusIcon />
       </button>
       <button
-        className="h-8 w-8 rounded-md border border-gray-300 p-[5px] text-gray-700 hover:bg-gray-200 dark:border-gray-500 dark:bg-vsdark-500 dark:text-gray-300 dark:hover:border-yellow-400 dark:hover:text-yellow-400"
+        className="dark:bg-vsdark-500 h-8 w-8 rounded-md border border-gray-300 p-[5px] text-gray-700 hover:bg-gray-200 dark:border-gray-500 dark:text-gray-300 dark:hover:border-yellow-400 dark:hover:text-yellow-400"
         type="button"
         aria-label="Toggle theme"
         onClick={() => setLightTheme(!lightmode)}

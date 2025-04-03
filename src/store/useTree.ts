@@ -6,6 +6,7 @@ import { getOutgoers } from "@/core/graph/getOutgoers";
 import { parser } from "@/core/json/jsonParser";
 import { useJson } from "@/store//useJson";
 import { EdgeData, NodeData } from "@/core/type";
+import { compressToEncodedURIComponent } from "lz-string";
 
 const initialStates = {
   zoomPanPinch: null as ReactZoomPanPinchRef | null,
@@ -37,6 +38,7 @@ interface GraphActions {
   collapseGraph: () => void;
   toggleFold: (value: boolean) => void;
   toggleFullscreen: (value: boolean) => void;
+  share: () => void;
   zoomIn: () => void;
   zoomOut: () => void;
   centerView: () => void;
@@ -160,6 +162,21 @@ export const useTree = create<Graph & GraphActions>((set, get) => ({
       collapsedParents: [],
       graphCollapsed: false,
     });
+  },
+  share: async () => {
+    const url = new URL(window.location.href);
+    const json = useJson.getState().json;
+    url.hash = "#" + compressToEncodedURIComponent(json);
+    await navigator.clipboard
+      .writeText(url.toString())
+      .then(() => {
+        alert("Copied url to clipboard");
+      })
+      .catch((err) => {
+        alert("Failed to copy URL to clipboard");
+        // eslint-disable-next-line no-console
+        console.error(err);
+      });
   },
   zoomIn: () => {
     const zoomPanPinch = get().zoomPanPinch;

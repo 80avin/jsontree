@@ -4,6 +4,10 @@ import { contentToJson } from "@/core/json/jsonAdapter";
 import { useJson } from "@/store/useJson";
 import { useStored } from "@/store/useStored";
 import { JSON_TEMPLATE } from "@/constants/json";
+import {
+  compressToEncodedURIComponent,
+  decompressFromEncodedURIComponent,
+} from "lz-string";
 
 type SetContents = {
   contents?: string;
@@ -16,6 +20,7 @@ interface JsonActions {
   getHasChanges: () => boolean;
   setError: (error: object | null | string) => void;
   setHasChanges: (hasChanges: boolean) => void;
+  loadInitialContent: () => void;
   setContents: (data: SetContents) => void;
   clear: () => void;
 }
@@ -28,11 +33,13 @@ const initialStates = {
 
 export type FileStates = typeof initialStates;
 
-const debouncedUpdateJson = debounce(
-  (value: unknown) =>
-    useJson.getState().setJson(JSON.stringify(value, null, 2)),
-  800,
-);
+const debouncedUpdateJson = debounce((value: unknown) => {
+  const url = new URL(window.location.href);
+  const json = useJson.getState().json;
+  url.hash = "#" + compressToEncodedURIComponent(json);
+  window.location.replace(url);
+  return useJson.getState().setJson(JSON.stringify(value, null, 2));
+}, 800);
 
 export const useApp = create<FileStates & JsonActions>()((set, get) => ({
   ...initialStates,
@@ -42,6 +49,25 @@ export const useApp = create<FileStates & JsonActions>()((set, get) => ({
   },
   getContents: () => get().contents,
   getHasChanges: () => get().hasChanges,
+  loadInitialContent: () => {
+    const hash = window.location.hash;
+    let contents: string = "";
+    if (hash.length > 1) {
+      try {
+        const jsonText = decompressFromEncodedURIComponent(
+          decodeURIComponent(hash.substring(1)),
+        );
+        JSON.parse(jsonText);
+        contents = jsonText;
+      } catch (error) {
+        // eslint-disable-next-line no-console
+        console.error("Invalid JSON in URL hash", error);
+      }
+    }
+
+    contents = contents || useJson.getState().json || JSON_TEMPLATE;
+    get().setContents({ contents, hasChanges: false });
+  },
   setContents: async ({ contents, hasChanges = true, skipUpdate = false }) => {
     try {
       set({ ...(contents && { contents }), error: null, hasChanges });

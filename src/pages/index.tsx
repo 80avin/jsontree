@@ -9,7 +9,6 @@ import MonacoEditor from "@/components/MonacoEditor";
 import EditorInfobar from "@/components/EditorInfobar";
 import "allotment/dist/style.css";
 import { useApp } from "@/store/useApp";
-import { JSON_TEMPLATE } from "@/constants/json";
 import Navbar from "@/components/Navbar";
 import { useTree } from "@/store/useTree";
 import { useBreakpoint } from "@/hooks/useBreakpoint";
@@ -28,7 +27,7 @@ const TreeEditor = dynamic(() => import("@/components/TreeEditor"), {
 
 export default function Home() {
   const { isReady } = useRouter();
-  const setContents = useApp((state) => state.setContents);
+  const loadInitialContent = useApp((state) => state.loadInitialContent);
   const fullscreen = useTree((state) => state.fullscreen);
   const toggleFullscreen = useTree((state) => state.toggleFullscreen);
   const lightmode = useStored((state) => state.lightmode);
@@ -45,9 +44,9 @@ export default function Home() {
 
   useEffect(() => {
     if (isReady) {
-      setContents({ contents: JSON_TEMPLATE, hasChanges: false });
+      loadInitialContent();
     }
-  }, [isReady, setContents]);
+  }, [isReady, loadInitialContent]);
 
   useEffect(() => {
     if (isScreenLessThan) toggleFullscreen(true);
@@ -72,7 +71,7 @@ export default function Home() {
             proportionalLayout={false}
           >
             <Allotment.Pane
-              className="h-full bg-white dark:bg-vsdark-500 dark:text-white"
+              className="dark:bg-vsdark-500 h-full bg-white dark:text-white"
               preferredSize={isScreenLessThan ? "100%" : 450}
               minSize={fullscreen ? 0 : 450}
               maxSize={isScreenLessThan ? Infinity : 700}
