@@ -35,10 +35,10 @@ export type FileStates = typeof initialStates;
 
 const debouncedUpdateJson = debounce((value: unknown) => {
   const url = new URL(window.location.href);
-  const json = useJson.getState().json;
+  const json = JSON.stringify(value, null, 2);
   url.hash = "#" + compressToEncodedURIComponent(json);
   window.location.replace(url);
-  return useJson.getState().setJson(JSON.stringify(value, null, 2));
+  return useJson.getState().setJson(json);
 }, 800);
 
 export const useApp = create<FileStates & JsonActions>()((set, get) => ({
