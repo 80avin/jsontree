@@ -57,7 +57,7 @@ export const useApp = create<FileStates & JsonActions>()((set, get) => ({
         const jsonText = decompressFromEncodedURIComponent(
           decodeURIComponent(hash.substring(1)),
         );
-        JSON.parse(jsonText);
+        if (jsonText) JSON.parse(jsonText);
         contents = jsonText;
       } catch (error) {
         // eslint-disable-next-line no-console
