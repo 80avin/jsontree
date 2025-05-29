@@ -123,7 +123,7 @@ export function FilterToolbar() {
           <FilterIcon />
         </div>
         {isActive && (
-          <span className="text-xs font-medium">
+          <span className="hidden text-xs font-medium sm:inline">
             {isWhitelist ? "Include" : "Exclude"}
           </span>
         )}

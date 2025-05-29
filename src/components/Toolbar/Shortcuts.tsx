@@ -18,6 +18,9 @@ import {
   ArrowPath,
   DownloadIcon,
   JsonIcon,
+  ShareIcon,
+  ZoomInIcon,
+  ZoomOutIcon,
 } from "@/components/Icons";
 import { useStored } from "@/store/useStored";
 import { DownloadImageModal } from "@/components/modals/DownloadImageModal";
@@ -30,6 +33,7 @@ export default function Shortcuts() {
   const centerView = useTree((state) => state.centerView);
   const zoomIn = useTree((state) => state.zoomIn);
   const zoomOut = useTree((state) => state.zoomOut);
+  const share = useTree((state) => state.share);
   const direction = useTree((state) => state.direction);
   const setDirection = useTree((state) => state.setDirection);
 
@@ -116,6 +120,23 @@ export default function Shortcuts() {
                     focus
                       ? "bg-gray-900 text-white dark:text-yellow-400"
                       : "text-gray-900 dark:text-white"
+                  } group flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm md:hidden`}
+                  onClick={share}
+                >
+                  <div className="h-4 w-4">
+                    <ShareIcon />
+                  </div>
+                  Share URL
+                </button>
+              )}
+            </MenuItem>
+            <MenuItem>
+              {({ focus }) => (
+                <button
+                  className={`${
+                    focus
+                      ? "bg-gray-900 text-white dark:text-yellow-400"
+                      : "text-gray-900 dark:text-white"
                   } group flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm md:justify-between`}
                   onClick={toggleDirection}
                 >
@@ -158,6 +179,40 @@ export default function Shortcuts() {
                   >
                     {modKey} SHIFT C
                   </kbd>
+                </button>
+              )}
+            </MenuItem>
+            <MenuItem>
+              {({ focus }) => (
+                <button
+                  className={`${
+                    focus
+                      ? "bg-gray-900 text-white dark:text-yellow-400"
+                      : "text-gray-900 dark:text-white"
+                  } group flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm md:hidden`}
+                  onClick={zoomIn}
+                >
+                  <div className="h-4 w-4">
+                    <ZoomInIcon />
+                  </div>
+                  Zoom In
+                </button>
+              )}
+            </MenuItem>
+            <MenuItem>
+              {({ focus }) => (
+                <button
+                  className={`${
+                    focus
+                      ? "bg-gray-900 text-white dark:text-yellow-400"
+                      : "text-gray-900 dark:text-white"
+                  } group flex w-full items-center gap-2 rounded-md px-2 py-2 text-sm md:hidden`}
+                  onClick={zoomOut}
+                >
+                  <div className="h-4 w-4">
+                    <ZoomOutIcon />
+                  </div>
+                  Zoom Out
                 </button>
               )}
             </MenuItem>
