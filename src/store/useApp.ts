@@ -20,7 +20,7 @@ interface JsonActions {
   getHasChanges: () => boolean;
   setError: (error: object | null | string) => void;
   setHasChanges: (hasChanges: boolean) => void;
-  loadInitialContent: () => void;
+  loadInitialContent: () => Promise<void>;
   setContents: (data: SetContents) => void;
   clear: () => void;
 }
@@ -33,12 +33,26 @@ const initialStates = {
 
 export type FileStates = typeof initialStates;
 
-const debouncedUpdateJson = debounce((value: unknown) => {
-  const url = new URL(window.location.href);
+const debouncedUpdateJson = debounce(async (value: unknown) => {
   const json = JSON.stringify(value, null, 2);
-  url.hash = "#" + compressToEncodedURIComponent(json);
-  window.location.replace(url);
-  return useJson.getState().setJson(json);
+
+  try {
+    // Try to create enhanced URL with settings
+    const { createShareableUrl } = await import("@/store/useSavedJsons");
+
+    // First update the JSON state
+    useJson.getState().setJson(json);
+
+    // Then create the enhanced URL
+    const enhancedUrl = await createShareableUrl(true);
+    window.location.replace(enhancedUrl);
+  } catch (error) {
+    // Fallback to simple URL update
+    const url = new URL(window.location.href);
+    url.hash = "#" + compressToEncodedURIComponent(json);
+    window.location.replace(url);
+    useJson.getState().setJson(json);
+  }
 }, 800);
 
 export const useApp = create<FileStates & JsonActions>()((set, get) => ({
@@ -49,19 +63,30 @@ export const useApp = create<FileStates & JsonActions>()((set, get) => ({
   },
   getContents: () => get().contents,
   getHasChanges: () => get().hasChanges,
-  loadInitialContent: () => {
+  loadInitialContent: async () => {
     const hash = window.location.hash;
     let contents: string = "";
+
     if (hash.length > 1) {
       try {
-        const jsonText = decompressFromEncodedURIComponent(
-          decodeURIComponent(hash.substring(1)),
-        );
-        if (jsonText) JSON.parse(jsonText);
-        contents = jsonText;
+        // Try loading with enhanced URL loading (includes settings)
+        const { loadFromShareableUrl } = await import("@/store/useSavedJsons");
+        await loadFromShareableUrl(hash);
+
+        // Get the loaded JSON content
+        contents = useJson.getState().json;
       } catch (error) {
-        // eslint-disable-next-line no-console
-        console.error("Invalid JSON in URL hash", error);
+        // Fallback to old URL loading method
+        try {
+          const jsonText = decompressFromEncodedURIComponent(
+            decodeURIComponent(hash.substring(1)),
+          );
+          if (jsonText) JSON.parse(jsonText);
+          contents = jsonText;
+        } catch (fallbackError) {
+          // eslint-disable-next-line no-console
+          console.error("Invalid JSON in URL hash", fallbackError);
+        }
       }
     }
 

@@ -8,6 +8,19 @@ import { useJson } from "@/store//useJson";
 import { EdgeData, NodeData } from "@/core/type";
 import { compressToEncodedURIComponent } from "lz-string";
 
+// Helper function to update URL with current settings
+const updateUrlWithSettings = async () => {
+  try {
+    const { createShareableUrl } = await import("@/store/useSavedJsons");
+    const enhancedUrl = await createShareableUrl(true);
+    window.history.replaceState({}, "", enhancedUrl);
+  } catch (error) {
+    // Silently fail - URL update is not critical
+    // eslint-disable-next-line no-console
+    console.warn("Failed to update URL with settings:", error);
+  }
+};
+
 const initialStates = {
   zoomPanPinch: null as ReactZoomPanPinchRef | null,
   direction: "RIGHT" as CanvasDirection,
@@ -65,6 +78,8 @@ export const useTree = create<Graph & GraphActions>((set, get) => ({
   setDirection: (direction = "RIGHT") => {
     set({ direction });
     setTimeout(() => get().centerView(), 200);
+    // Update URL with new direction setting
+    updateUrlWithSettings();
   },
   setLoading: (loading) => set({ loading }),
   expandNodes: (nodeId) => {
@@ -164,19 +179,27 @@ export const useTree = create<Graph & GraphActions>((set, get) => ({
     });
   },
   share: async () => {
-    const url = new URL(window.location.href);
-    const json = useJson.getState().json;
-    url.hash = "#" + compressToEncodedURIComponent(json);
-    await navigator.clipboard
-      .writeText(url.toString())
-      .then(() => {
-        alert("Copied url to clipboard");
-      })
-      .catch((err) => {
-        alert("Failed to copy URL to clipboard");
-        // eslint-disable-next-line no-console
-        console.error(err);
-      });
+    try {
+      const { createShareableUrl } = await import("@/store/useSavedJsons");
+      const url = await createShareableUrl(true);
+      await navigator.clipboard.writeText(url);
+      alert("URL with settings copied to clipboard!");
+    } catch (err) {
+      // Fallback to old sharing method
+      const url = new URL(window.location.href);
+      const json = useJson.getState().json;
+      url.hash = "#" + compressToEncodedURIComponent(json);
+      await navigator.clipboard
+        .writeText(url.toString())
+        .then(() => {
+          alert("URL copied to clipboard");
+        })
+        .catch((error) => {
+          alert("Failed to copy URL to clipboard");
+          // eslint-disable-next-line no-console
+          console.error(error);
+        });
+    }
   },
   zoomIn: () => {
     const zoomPanPinch = get().zoomPanPinch;
@@ -202,6 +225,8 @@ export const useTree = create<Graph & GraphActions>((set, get) => ({
   toggleFold: (foldNodes) => {
     set({ foldNodes });
     get().setGraph();
+    // Update URL with new fold setting
+    updateUrlWithSettings();
   },
   toggleFullscreen: (fullscreen) => set({ fullscreen }),
   setZoomPanPinch: (zoomPanPinch) => set({ zoomPanPinch }),

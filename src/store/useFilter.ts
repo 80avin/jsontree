@@ -1,6 +1,19 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+// Helper function to update URL with current settings
+const updateUrlWithSettings = async () => {
+  try {
+    const { createShareableUrl } = await import("@/store/useSavedJsons");
+    const enhancedUrl = await createShareableUrl(true);
+    window.history.replaceState({}, "", enhancedUrl);
+  } catch (error) {
+    // Silently fail - URL update is not critical
+    // eslint-disable-next-line no-console
+    console.warn("Failed to update URL with settings:", error);
+  }
+};
+
 export interface FilterState {
   pattern: string;
   isWhitelist: boolean;
@@ -43,6 +56,8 @@ export const useFilter = create<FilterState & FilterActions>()(
             isValid: true,
             errorMessage: "",
           });
+          // Update URL after clearing filter
+          updateUrlWithSettings();
           return;
         }
 
@@ -56,6 +71,8 @@ export const useFilter = create<FilterState & FilterActions>()(
             isValid: true,
             errorMessage: "",
           });
+          // Update URL after setting filter
+          updateUrlWithSettings();
         } catch (error) {
           set({
             pattern: trimmedPattern,
@@ -66,6 +83,7 @@ export const useFilter = create<FilterState & FilterActions>()(
             errorMessage:
               error instanceof Error ? error.message : "Invalid regex",
           });
+          // Don't update URL for invalid patterns
         }
       },
 
@@ -73,6 +91,8 @@ export const useFilter = create<FilterState & FilterActions>()(
         set({
           ...initialState,
         });
+        // Update URL after clearing filter
+        updateUrlWithSettings();
       },
 
       shouldIncludePath: (path: string) => {

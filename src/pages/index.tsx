@@ -44,7 +44,8 @@ export default function Home() {
 
   useEffect(() => {
     if (isReady) {
-      loadInitialContent();
+      // eslint-disable-next-line no-console
+      loadInitialContent().catch(console.error);
     }
   }, [isReady, loadInitialContent]);
 
